@@ -75,6 +75,72 @@ namespace YggdrasilTorrent.Core
 			
 			return data.GetBytes(length);
 		}
+
+		public static byte[] EncodeObject(object obj)
+		{
+			var bytes = new List<byte>();
+
+			if (obj is Dictionary<string, object>)
+				bytes.AddRange(EncodeDictionary((Dictionary<string, object>)obj));
+			if (obj is List<object>)
+				bytes.AddRange(EncodeList((List<object>)obj));
+			if (obj is long)
+				bytes.AddRange(EncodeLong((long)obj));
+			if (obj is string)
+				bytes.AddRange(EncodeString(Encoding.UTF8.GetBytes((string) obj)));
+			if (obj is byte[])
+				bytes.AddRange(EncodeString((byte[])obj));
+
+			return bytes.ToArray();
+		}
+
+		private static byte[] EncodeDictionary(Dictionary<string, object> obj)
+		{
+			var bytes = new List<byte>();
+
+			bytes.Add(control_char_dictionary_start);
+			foreach (var lol in obj)
+			{
+				bytes.AddRange(EncodeString(Encoding.UTF8.GetBytes(lol.Key)));
+				bytes.AddRange(EncodeObject(lol.Value));
+			}
+			bytes.Add(control_char_dictionary_end);
+
+			return bytes.ToArray();
+		}
+		private static byte[] EncodeList(List<object> obj)
+		{
+			var bytes = new List<byte>();
+
+			bytes.Add(control_char_list_start);
+			foreach (var lol in obj)
+			{
+				bytes.AddRange(EncodeObject(lol));
+			}
+			bytes.Add(control_char_list_end);
+
+			return bytes.ToArray();
+		}
+		private static byte[] EncodeLong(long obj)
+		{
+			var bytes = new List<byte>();
+
+			bytes.Add(control_char_long_start);
+			bytes.AddRange(Encoding.UTF8.GetBytes(obj.ToString()));
+			bytes.Add(control_char_long_end);
+
+			return bytes.ToArray();
+		}
+		private static byte[] EncodeString(byte[] obj)
+		{
+			var bytes = new List<byte>();
+
+			bytes.AddRange(Encoding.UTF8.GetBytes(obj.Length.ToString()));
+			bytes.Add(control_char_string_split);
+			bytes.AddRange(obj);
+
+			return bytes.ToArray();
+		}
 	}
 
 	/// <summary>
