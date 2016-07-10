@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YggdrasilTorrent.Core", "YggdrasilTorrent.Core\YggdrasilTorrent.Core.csproj", "{AEE12D7D-2CD5-42E4-BCB3-1B9AE7296F36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YggdrasilTorrent.Console", "YggdrasilTorrent.Console\YggdrasilTorrent.Console.csproj", "{011C3FD3-33FC-46D9-B443-9CAF2FFC8B1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AEE12D7D-2CD5-42E4-BCB3-1B9AE7296F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEE12D7D-2CD5-42E4-BCB3-1B9AE7296F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEE12D7D-2CD5-42E4-BCB3-1B9AE7296F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEE12D7D-2CD5-42E4-BCB3-1B9AE7296F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{011C3FD3-33FC-46D9-B443-9CAF2FFC8B1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{011C3FD3-33FC-46D9-B443-9CAF2FFC8B1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{011C3FD3-33FC-46D9-B443-9CAF2FFC8B1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{011C3FD3-33FC-46D9-B443-9CAF2FFC8B1E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
