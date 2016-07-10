@@ -8,11 +8,8 @@ namespace YggdrasilTorrent.Core
 	/// <summary>
 	/// Instantiates a decoder for a BEncode-formatted byte array.
 	/// </summary>
-	public class BEncode
+	public static class BEncode
 	{
-		private byte[] fileContents;
-		private int index;
-
 		private const byte control_char_dictionary_start = (byte) 'd';
 		private const byte control_char_dictionary_end = (byte) 'e';
 		private const byte control_char_list_start = (byte) 'l';
@@ -20,74 +17,63 @@ namespace YggdrasilTorrent.Core
 		private const byte control_char_long_start = (byte) 'i';
 		private const byte control_char_long_end = (byte) 'e';
 		private const byte control_char_string_split = (byte) ':';
-
-		public BEncode(byte[] fileContents)
+		
+		public static object DecodeObject(DataIndex data)
 		{
-			this.fileContents = fileContents;
-		}
-
-		public object DecodeObject()
-		{
-			switch (fileContents[index])
+			var currentChar = data.GetNext();
+			switch (currentChar)
 			{
 				case control_char_dictionary_start:
-					return DecodeDictionary();
+					return DecodeDictionary(data);
 				case control_char_list_start:
-					return DecodeList();
+					return DecodeList(data);
 				case control_char_long_start:
-					return DecodeLong();
+					return DecodeLong(data);
 				default:
 					int n;
 					// Check for final case: a number, which represents a length of bytes.
-					if (!int.TryParse(Encoding.UTF8.GetString(new[] { fileContents[index] }), out n))
+					if (!int.TryParse(Encoding.UTF8.GetString(new[] { currentChar }), out n))
 						throw new BEncodeException("Invalid control character.");
-					return DecodeString();
+					data.Index--; // This is a special circumstance that requires the "control" character to be parsed.
+					return DecodeString(data);
 			}
 		}
 
-		private Dictionary<string, object> DecodeDictionary()
+		private static Dictionary<string, object> DecodeDictionary(DataIndex data)
 		{
 			var dictionary = new Dictionary<string, object>();
-			DecodeLoop(control_char_dictionary_end, () => dictionary.Add(DecodeString(), DecodeObject()));
+			DecodeLoop(data, control_char_dictionary_end, () => dictionary.Add(DecodeString(data), DecodeObject(data)));
 			return dictionary;
 		}
 
-		private List<object> DecodeList()
+		private static List<object> DecodeList(DataIndex data)
 		{
 			var list = new List<object>();
-			DecodeLoop(control_char_list_end, () => list.Add(DecodeObject()));
+			DecodeLoop(data, control_char_list_end, () => list.Add(DecodeObject(data)));
 			return list;
 		}
 
-		private void DecodeLoop(byte endCharacter, Action action)
+		private static void DecodeLoop(DataIndex data, byte endByte, Action action)
 		{
-			index++; // Skip start character.
-			while (fileContents[index] != endCharacter)
+			while (data.Get() != endByte)
 			{
 				action();
 			}
-			index++; // Skip end character.
+			data.Index++;
 		}
 
-		private long DecodeLong(byte endCharacter = control_char_long_end)
+		private static long DecodeLong(DataIndex data, byte endByte = control_char_long_end)
 		{
-			index++; // Skip start character
-			int endIndex;
-			for (endIndex = index; fileContents[endIndex] != endCharacter; endIndex++);
-
-			var numberString = Encoding.UTF8.GetString(new ArraySegment<byte>(fileContents, index, endIndex - index).ToArray());
-
-			index = endIndex + 1;
+			var numberString = Encoding.UTF8.GetString(data.GetBytesUntil(endByte));
+			
 			return Convert.ToInt64(numberString);
 		}
 
-		private string DecodeString()
+		private static string DecodeString(DataIndex data)
 		{
-			index--; // Circumvent the character skipping in DecodeLong
-			var length = (int) DecodeLong(control_char_string_split);
+			var length = (int) DecodeLong(data, control_char_string_split);
 
-			var returnString = Encoding.UTF8.GetString(new ArraySegment<byte>(fileContents, index, length).ToArray());
-			index += length;
+			var returnString = Encoding.UTF8.GetString(data.GetBytes(length));
 			return returnString;
 		}
 	}
