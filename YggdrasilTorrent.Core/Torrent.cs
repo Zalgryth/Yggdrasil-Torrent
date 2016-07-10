@@ -144,6 +144,31 @@ namespace YggdrasilTorrent.Core
 			handleInfoKey("pieces", false, obj => ParsePieces((byte[]) obj));
 			handleInfoKey("private", true, obj => TorrentInfo.Private = (long) obj == 1);
 			handleInfoKey("name", false, obj => TorrentInfo.Name = bytesToString((byte[]) obj));
+
+			TorrentInfo.FileInfos = new List<FileInfo>();
+
+			if (info.ContainsKey("files"))
+			{
+				// Multiple file mode
+				var files = (List<object>) info["files"];
+				foreach (var file in files)
+				{
+					var fileDictionary = (Dictionary<string, object>) file;
+					var fileInfo = new FileInfo();
+					handleKey(fileDictionary, "length", false, obj => fileInfo.Length = (long) obj);
+					handleKey(fileDictionary, "md5sum", true, obj => fileInfo.Md5sum = bytesToString((byte[]) obj));
+					handleKey(fileDictionary, "path", false, obj => fileInfo.Path = ((List<object>) obj).Select(i => bytesToString((byte[])i)).ToList());
+					TorrentInfo.FileInfos.Add(fileInfo);
+				}
+			}
+			else
+			{
+				// Single file mode
+				var fileInfo = new FileInfo();
+				handleInfoKey("length", false, obj => fileInfo.Length = (long) obj);
+				handleInfoKey("md5sum", true, obj => fileInfo.Md5sum = bytesToString((byte[]) obj));
+				TorrentInfo.FileInfos.Add(fileInfo);
+			}
 		}
 
 		/// <summary>
