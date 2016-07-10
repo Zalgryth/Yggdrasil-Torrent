@@ -42,7 +42,7 @@ namespace YggdrasilTorrent.Core
 		private static Dictionary<string, object> DecodeDictionary(DataIndex data)
 		{
 			var dictionary = new Dictionary<string, object>();
-			DecodeLoop(data, control_char_dictionary_end, () => dictionary.Add(DecodeString(data), DecodeObject(data)));
+			DecodeLoop(data, control_char_dictionary_end, () => dictionary.Add(Encoding.UTF8.GetString(DecodeString(data)), DecodeObject(data)));
 			return dictionary;
 		}
 
@@ -69,12 +69,11 @@ namespace YggdrasilTorrent.Core
 			return Convert.ToInt64(numberString);
 		}
 
-		private static string DecodeString(DataIndex data)
+		private static byte[] DecodeString(DataIndex data)
 		{
 			var length = (int) DecodeLong(data, control_char_string_split);
-
-			var returnString = Encoding.UTF8.GetString(data.GetBytes(length));
-			return returnString;
+			
+			return data.GetBytes(length);
 		}
 	}
 
