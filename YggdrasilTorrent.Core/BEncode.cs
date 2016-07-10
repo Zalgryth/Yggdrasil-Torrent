@@ -47,37 +47,33 @@ namespace YggdrasilTorrent.Core
 
 		private Dictionary<string, object> DecodeDictionary()
 		{
-			index++; // Skip start character
 			var dictionary = new Dictionary<string, object>();
-			while (fileContents[index] != control_char_dictionary_end)
-			{
-				dictionary.Add(DecodeString(), DecodeObject());
-			}
-			index++; // Skip end character
+			DecodeLoop(control_char_dictionary_end, () => dictionary.Add(DecodeString(), DecodeObject()));
 			return dictionary;
 		}
 
 		private List<object> DecodeList()
 		{
-			index++; // Skip start character
 			var list = new List<object>();
-
-			while (fileContents[index] != control_char_list_end)
-			{
-				list.Add(DecodeObject());
-			}
-
-			// Skip the end character.
-			index++;
+			DecodeLoop(control_char_list_end, () => list.Add(DecodeObject()));
 			return list;
+		}
+
+		private void DecodeLoop(byte endCharacter, Action action)
+		{
+			index++; // Skip start character.
+			while (fileContents[index] != endCharacter)
+			{
+				action();
+			}
+			index++; // Skip end character.
 		}
 
 		private long DecodeLong(byte endCharacter = control_char_long_end)
 		{
 			index++; // Skip start character
 			int endIndex;
-			for (endIndex = index; fileContents[endIndex] != endCharacter; endIndex++)
-				;
+			for (endIndex = index; fileContents[endIndex] != endCharacter; endIndex++);
 
 			var numberString = Encoding.UTF8.GetString(new ArraySegment<byte>(fileContents, index, endIndex - index).ToArray());
 
