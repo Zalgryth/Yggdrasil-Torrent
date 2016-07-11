@@ -10,6 +10,8 @@ namespace YggdrasilTorrent.Console
 	{
 		static void Main(string[] args)
 		{
+			var peerId = "-YD0010-DEV CLIENT..";
+
 			// Load a sample torrent file
 			var fileContents = File.ReadAllBytes(@"insert-sample-torrent-path-here.torrent");
 
@@ -18,6 +20,8 @@ namespace YggdrasilTorrent.Console
 
 			// Parse the contents of the BEncode decoding
 			var torrent = new Torrent(objects);
+
+			Tracker.AnnounceRequest(peerId, torrent);
 
 			TestEncoding(objects, fileContents);
 			TestPieceHashing(torrent);

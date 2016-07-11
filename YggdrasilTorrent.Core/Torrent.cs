@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace YggdrasilTorrent.Core
 {
@@ -101,6 +102,11 @@ namespace YggdrasilTorrent.Core
 		public TorrentInfo TorrentInfo { get; set; }
 
 		/// <summary>
+		/// SHA1 hash of the value of the info key from the Metainfo file.
+		/// </summary>
+		public byte[] InfoHash { get; private set; }
+
+		/// <summary>
 		/// Creates an empty torrent object.
 		/// </summary>
 		public Torrent()
@@ -169,6 +175,9 @@ namespace YggdrasilTorrent.Core
 				handleInfoKey("md5sum", true, obj => fileInfo.Md5sum = bytesToString((byte[]) obj));
 				TorrentInfo.FileInfos.Add(fileInfo);
 			}
+
+			var sha1 = SHA1.Create();
+			InfoHash = sha1.ComputeHash(BEncode.EncodeObject(info));
 		}
 
 		/// <summary>
